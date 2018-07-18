@@ -49,6 +49,7 @@ void chassis_task(const void* argu)
 {
   //初始化底盘控制PID参数
   chassis_pid_param_init();
+	chassis_autonomous_init();
 
   //底盘控制任务循环
   uint32_t chassis_wake_time = osKernelSysTick();
@@ -86,6 +87,11 @@ void chassis_task(const void* argu)
         //底盘扭腰旋转速度处理，覆盖前面计算出来的值
         chassis_twist_handle();
       }break;
+			
+			case CHASSIS_AUTONOMOUS:
+			{
+				chassis_autonomous_information_get();
+			}break;
 
       //底盘保持静止锁死不动
       default:
@@ -128,7 +134,7 @@ void get_chassis_mode(void)
     break;
 
     case RC_DN:
-      chassis.mode = CHASSIS_STOP;
+      chassis.mode = CHASSIS_AUTONOMOUS;
     break;
   }
   

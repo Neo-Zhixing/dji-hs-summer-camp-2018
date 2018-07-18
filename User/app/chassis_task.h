@@ -51,6 +51,7 @@ typedef enum
   CHASSIS_FOLLOW_GIMBAL, //底盘跟随云台
   CHASSIS_FIXED_ROUTE,   //底盘固定路线
   CHASSIS_TWIST,         //底盘扭腰模式
+	CHASSIS_AUTONOMOUS,    //Autonomous Programs
 } chassis_mode_e;
 
 /**
@@ -112,6 +113,8 @@ void chassis_open_loop_calculate(void);
   * @brief     底盘扭腰处理函数
   */
 void chassis_twist_handle(void);
+
+#include "chassis_autonomous.h"
 
 extern chassis_t chassis;
 extern int16_t   chassis_moto_current[];

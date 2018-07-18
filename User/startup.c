@@ -32,6 +32,7 @@
 #include "uart_device.h"
 #include "calibrate.h"
 #include "sys.h"
+#include "startup_music.h"
 
 
 /**
@@ -41,19 +42,11 @@
 void init_setup(void)
 {
   //关闭 LED 状态指示灯
-  write_led_io(LED_G, LED_OFF);
-  write_led_io(LED_R, LED_OFF);
-  
   //关闭所有 LED IO
-  write_led_io(LED_IO1, LED_OFF);
-  write_led_io(LED_IO2, LED_OFF);
-  write_led_io(LED_IO3, LED_OFF);
-  write_led_io(LED_IO4, LED_OFF);
-  write_led_io(LED_IO5, LED_OFF);
-  write_led_io(LED_IO6, LED_OFF);
-  write_led_io(LED_IO7, LED_OFF);
-  write_led_io(LED_IO8, LED_OFF);
+	for (int i=1; i <= 10; i++)
+	  write_led_io(i, LED_OFF);
   
+	play_startup_music();
   //读取全局校准数据
   read_cali_data();
   
