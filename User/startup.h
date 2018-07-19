@@ -43,7 +43,7 @@
   */
 #define USER_TASK1 chassis_task
 //#define USER_TASK2 gimbal_task
-//#define USER_TASK3 detect_task
+#define USER_TASK3 detect_task
 //#define USER_TASK4 execute_task
 //#define USER_TASK5
 

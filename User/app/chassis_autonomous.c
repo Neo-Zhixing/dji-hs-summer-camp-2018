@@ -38,24 +38,34 @@ void update_chassis_current_position() {
 	
 	chassis_current_position.w = -imudata.angle_z;
 }
+void limited_accelerate (float *originalValue, float value, float limit) {
+	if (value - *originalValue > limit)
+		value = *originalValue + limit;
+	else if (value - *originalValue < -limit)
+		value = *originalValue - limit;
+	*originalValue = value;
+}
 void chassis_autonomous_information_get(void) {
 	update_chassis_current_position();
 	if (rc.ch3 < 20 && rc.ch3 > -20) {
 		chassis_autonomous_target.w = round(chassis_current_position.w / 90) * 90;
 		chassis_autonomous_target.wPid.iout *= 0.99f;
-		chassis.vw = pid_calc(&(chassis_autonomous_target.wPid), chassis_current_position.w, chassis_autonomous_target.w);
+		float speed = pid_calc(&(chassis_autonomous_target.wPid), chassis_current_position.w, chassis_autonomous_target.w);
+		limited_accelerate(&(chassis.vw), speed, 15);
 	}
 	else
 	  chassis.vw = chassis.vw = rc.ch3 * CHASSIS_RC_MOVE_RATIO_R / RC_MAX_VALUE * MAX_CHASSIS_VR_SPEED + rc.mouse.x * CHASSIS_PC_MOVE_RATIO_R;
 	if (rc.ch1 < 20 && rc.ch1 > -20) {
 		chassis_autonomous_target.x = round(chassis_current_position.x / 50000) * 50000;
-		chassis.vx = pid_calc(&(chassis_autonomous_target.xPid), chassis_current_position.x, chassis_autonomous_target.x);
+		float speed = pid_calc(&(chassis_autonomous_target.xPid), chassis_current_position.x, chassis_autonomous_target.x);
+		limited_accelerate(&(chassis.vx), speed, 80);
 	}
 	else
 		chassis.vx = rc.ch1 * CHASSIS_RC_MOVE_RATIO_X / RC_MAX_VALUE * MAX_CHASSIS_VX_SPEED + km.vx * CHASSIS_PC_MOVE_RATIO_X;
 	if (rc.ch2 < 20 && rc.ch2 > -20) {
 		chassis_autonomous_target.y = round(chassis_current_position.y / 50000) * 50000;
-		chassis.vy = pid_calc(&(chassis_autonomous_target.yPid), chassis_current_position.y, chassis_autonomous_target.y);
+		float speed = pid_calc(&(chassis_autonomous_target.yPid), chassis_current_position.y, chassis_autonomous_target.y);
+		limited_accelerate(&(chassis.vy), speed, 80);
 	}
 	else
 		chassis.vy = rc.ch2 * CHASSIS_RC_MOVE_RATIO_Y / RC_MAX_VALUE * MAX_CHASSIS_VY_SPEED + km.vy * CHASSIS_PC_MOVE_RATIO_Y;

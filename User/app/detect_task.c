@@ -65,21 +65,21 @@ void global_err_detector_init(void)
   glb_err.err_list[GIMBAL_PIT_OFFLINE].set_timeout = 200;
   glb_err.err_list[GIMBAL_PIT_OFFLINE].delta_time  = 0;
   glb_err.err_list[GIMBAL_PIT_OFFLINE].last_time   = 0x00;
-  glb_err.err_list[GIMBAL_PIT_OFFLINE].enable      = 1;
+  glb_err.err_list[GIMBAL_PIT_OFFLINE].enable      = 0; // We don't have gimbal yet
 
   glb_err.err_list[GIMBAL_YAW_OFFLINE].err_exist   = 0;
   glb_err.err_list[GIMBAL_YAW_OFFLINE].warn_pri    = 8;
   glb_err.err_list[GIMBAL_YAW_OFFLINE].set_timeout = 200;
   glb_err.err_list[GIMBAL_YAW_OFFLINE].delta_time  = 0;
   glb_err.err_list[GIMBAL_YAW_OFFLINE].last_time   = 0x00;
-  glb_err.err_list[GIMBAL_YAW_OFFLINE].enable      = 1;
+  glb_err.err_list[GIMBAL_YAW_OFFLINE].enable      = 0; // We don't have gimbal yet
 
   glb_err.err_list[TRIGGER_MOTO_OFFLINE].err_exist   = 0;
   glb_err.err_list[TRIGGER_MOTO_OFFLINE].warn_pri    = 6;
   glb_err.err_list[TRIGGER_MOTO_OFFLINE].set_timeout = 200;
   glb_err.err_list[TRIGGER_MOTO_OFFLINE].delta_time  = 0;
   glb_err.err_list[TRIGGER_MOTO_OFFLINE].last_time   = 0x00;
-  glb_err.err_list[TRIGGER_MOTO_OFFLINE].enable      = 1;
+  glb_err.err_list[TRIGGER_MOTO_OFFLINE].enable      = 0; // We don't have a trigger motor yet
 
   for (int i = 0; i < 4; i++)
   {
