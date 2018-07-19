@@ -4,4 +4,5 @@
 #include "chassis_task.h"
 void chassis_autonomous_information_get(void);
 void chassis_autonomous_init(void);
+void chassis_autonomous_reset(void);
 #endif

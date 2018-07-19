@@ -90,6 +90,9 @@ void chassis_task(const void* argu)
 			
 			case CHASSIS_AUTONOMOUS:
 			{
+				if (chassis.mode != chassis.last_mode) {
+					chassis_autonomous_reset();
+				}
 				chassis_autonomous_information_get();
 			}break;
 
