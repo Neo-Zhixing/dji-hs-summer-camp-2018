@@ -406,6 +406,11 @@
               <FileType>5</FileType>
               <FilePath>..\User\rm_hal_lib.h</FilePath>
             </File>
+            <File>
+              <FileName>color_sensor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\driver\color_sensor.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -475,11 +480,6 @@
               <FileName>sys.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\User\sys.h</FilePath>
-            </File>
-            <File>
-              <FileName>test_custom.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\test_custom.c</FilePath>
             </File>
             <File>
               <FileName>startup_music.c</FileName>

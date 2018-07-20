@@ -42,9 +42,9 @@
   * @usage     首先开启 USER_TASKx 的宏定义，然后在 USER_TASKx 后添加需要开启的任务函数名
   */
 #define USER_TASK1 chassis_task
-//#define USER_TASK2 gimbal_task
-#define USER_TASK3 detect_task
-//#define USER_TASK4 execute_task
+#define USER_TASK2 execute_task
+//#define USER_TASK3 detect_task
+//#define USER_TASK4 gimbal_task
 //#define USER_TASK5
 
 /**
