@@ -411,6 +411,11 @@
               <FileType>1</FileType>
               <FilePath>..\User\driver\color_sensor.c</FilePath>
             </File>
+            <File>
+              <FileName>grayscale_sensor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\driver\grayscale_sensor.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
