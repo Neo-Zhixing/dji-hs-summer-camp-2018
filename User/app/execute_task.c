@@ -5,22 +5,21 @@
 #include "calibrate.h"
 #include "pid.h"
 #include "sys.h"
-#include "ultrasonic.h"
-
-void uart_callback(void) {
-	write_led_io(LED_IO1, LED_ON);
-}
+#include "i2c.h"
 
 
-uint16_t distance;
+
+uint8_t theAddress;
+
 void execute_task(const void* argu)
 {
-	osDelay(500);
-	ultrasonic_init(USER_UART4);
-	ultrasonic_config_uart(USER_UART4);
-	
+	I2C_Init();
   while(1) {
-		distance = ultrasonic_update_distance(USER_UART4);
+		uint8_t data[1] = {0x03};
+		I2C_Write(0x90, data, 1);
+		uint8_t data2[1];
+		I2C_Read(0x91, data2, 1);
+		theAddress = data2[0];
     osDelay(50);
   }
 }

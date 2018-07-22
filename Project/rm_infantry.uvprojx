@@ -421,6 +421,11 @@
               <FileType>1</FileType>
               <FilePath>..\User\driver\ultrasonic.c</FilePath>
             </File>
+            <File>
+              <FileName>i2c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\driver\i2c.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -515,6 +520,16 @@
               <FileName>rm_infantry1_3.lib</FileName>
               <FileType>4</FileType>
               <FilePath>..\Inc\rm_infantry1_3.lib</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_i2c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\stm32f4xx_hal_i2c.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_hal_i2c_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\stm32f4xx_hal_i2c_ex.c</FilePath>
             </File>
           </Files>
         </Group>
