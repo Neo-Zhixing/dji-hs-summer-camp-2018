@@ -392,6 +392,11 @@
               <FilePath>..\User\driver\uart_device.c</FilePath>
             </File>
             <File>
+              <FileName>i2c_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\driver\i2c_device.c</FilePath>
+            </File>
+            <File>
               <FileName>calibrate.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\driver\calibrate.c</FilePath>
@@ -420,11 +425,6 @@
               <FileName>ultrasonic.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\driver\ultrasonic.c</FilePath>
-            </File>
-            <File>
-              <FileName>i2c.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\driver\i2c.c</FilePath>
             </File>
           </Files>
         </Group>
