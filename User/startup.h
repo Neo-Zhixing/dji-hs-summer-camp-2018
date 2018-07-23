@@ -33,6 +33,7 @@
 #include "rm_hal_lib.h"
 #include "chassis_task.h"
 #include "detect_task.h"
+#include "elevator_task.h"
 #include "execute_task.h"
 #include "cmsis_os.h"
 
@@ -41,8 +42,8 @@
   * @usage     首先开启 USER_TASKx 的宏定义，然后在 USER_TASKx 后添加需要开启的任务函数名
   */
 #define USER_TASK1 chassis_task
-#define USER_TASK2 execute_task
-//#define USER_TASK3 detect_task
+#define USER_TASK2 elevator_task
+//#define USER_TASK3 execute_task
 //#define USER_TASK4
 //#define USER_TASK5
 

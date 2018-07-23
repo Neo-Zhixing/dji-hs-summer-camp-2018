@@ -101,7 +101,6 @@ void chassis_task(const void* argu)
 }
 
 
-uint32_t twist_count;
 void get_chassis_mode(void)
 {
   chassis.last_mode = chassis.mode;

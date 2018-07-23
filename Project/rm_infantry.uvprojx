@@ -466,6 +466,11 @@
               <FileType>1</FileType>
               <FilePath>..\User\app\execute_task.c</FilePath>
             </File>
+            <File>
+              <FileName>elevator_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\app\elevator_task.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -490,6 +495,11 @@
               <FileName>chassis_autonomous.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\app\chassis_autonomous.c</FilePath>
+            </File>
+            <File>
+              <FileName>elevator_storage.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\app\elevator_storage.c</FilePath>
             </File>
           </Files>
         </Group>

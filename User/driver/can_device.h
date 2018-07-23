@@ -54,6 +54,10 @@ typedef enum
 
 } can_msg_id_e;
 
+#define C610_MAX_CURRENT 10000
+#define C620_MAX_CURRENT 16384
+#define GM3510_MAX_CURRENT 29000
+
 #define FILTER_BUF 5
 /**
   * @brief     电机参数结构体
@@ -120,6 +124,6 @@ void send_chassis_motor_zero_current(void);
 /**
   * @brief     发送云台电机电流数据到电调
   */
-void send_elevator_motor_current(int16_t yaw_current, int16_t pit_current);
+void send_elevator_motor_current(int16_t elevator_current_left, int16_t elevator_current_right, int16_t claw_move_current);
 
 #endif

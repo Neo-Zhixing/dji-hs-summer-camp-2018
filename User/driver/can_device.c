@@ -169,14 +169,14 @@ void send_chassis_motor_zero_current(void)
 /**
   * @brief     发送Elevator电机电流数据到电调
   */
-void send_elevator_motor_current(int16_t elevator_current, int16_t claw_move_current)
+void send_elevator_motor_current(int16_t elevator_current_left, int16_t elevator_current_right, int16_t claw_move_current)
 {
   static uint8_t data[8];
   
-  data[0] = -elevator_current >> 8;
-  data[1] = -elevator_current;
-  data[2] = elevator_current >> 8;
-  data[3] = elevator_current;
+  data[0] = elevator_current_left >> 8;
+  data[1] = elevator_current_left;
+  data[2] = elevator_current_right >> 8;
+  data[3] = elevator_current_right;
   data[4] = claw_move_current >> 8;
   data[5] = claw_move_current;
   data[6] = 0;

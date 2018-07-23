@@ -66,29 +66,6 @@
 /* 底盘旋转速度，只在底盘开环模式下使用 */
 #define CHASSIS_PC_MOVE_RATIO_R 5.0f
 
-/*************************云台速度设置*******************************/
-
-/* 遥控器模式下的云台速度限制 */
-/* 云台pitch轴速度 */
-#define GIMBAL_RC_MOVE_RATIO_PIT 1.0f
-/* 云台yaw轴速度 */
-#define GIMBAL_RC_MOVE_RATIO_YAW 1.0f
-/* 鼠标键盘模式下的云台速度限制 */
-/* 云台pitch轴速度 */
-#define GIMBAL_PC_MOVE_RATIO_PIT 1.2f
-/* 云台yaw轴速度 */
-#define GIMBAL_PC_MOVE_RATIO_YAW 1.0f
-
-
-/*************************发射速度设置*******************************/
-#define SHOT_FRIC_WHEEL_SPEED    1300 //最大为2500
-
-
-/*************************发射频率设置*******************************/
-#define TRIGGER_MOTOR_SPEED      -5000 //
-
-
-
 
 
 
