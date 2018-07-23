@@ -1,5 +1,6 @@
 #include "elevator_storage.h"
 
+#include "cmsis_os.h"
 
 typedef enum {
 	BLOCK_EMPTY,
@@ -76,17 +77,11 @@ void storage_blocker_swing(storage_blocker_swing_state state) {
 
 #include "pid.h"
 #include "can_device.h"
-struct {
-	float x, y;
-} elevator_target_coordinates;
+elevator_target_coordinates_t elevator_target_coordinates;
 
-static struct {
-	int16_t elevator_left, elevator_right, claw_move;
-} initial_coordinates;
 static struct {
 	pid_t left_balance, right_balance;
 	pid_t elevator_pos, claw_pos;
-	pid_t left_speed, right_speed, claw_speed;
 } elevator_pids;
 
 #define ELEVATOR_LIMIT_SWITCH_LEFT     5
@@ -96,15 +91,12 @@ void elevator_init() {
 	set_digital_io_dir(ELEVATOR_LIMIT_SWITCH_LEFT, IO_INPUT);
 	set_digital_io_dir(ELEVATOR_LIMIT_SWITCH_RIGHT, IO_INPUT);
 	set_digital_io_dir(CLAW_MOVE_LIMIT_SWITCH, IO_INPUT);
-	pid_init(&elevator_pids.left_balance, 7000, 1000, 1, 0, 0);
-	pid_init(&elevator_pids.right_balance, 7000, 1000, 1, 0, 0);
-	pid_init(&elevator_pids.elevator_pos, 7000, 1000, 1, 0, 0);
-	pid_init(&elevator_pids.claw_pos, 7000, 1000, 1, 0, 0);
-	pid_init(&elevator_pids.left_speed, 7000, 1000, 1, 0, 0);
-	pid_init(&elevator_pids.right_speed, 7000, 1000, 1, 0, 0);
-	pid_init(&elevator_pids.claw_speed, 7000, 1000, 1, 0, 0);
+	pid_init(&elevator_pids.left_balance, 7000, 1000, 50, 2, 0);
+	pid_init(&elevator_pids.right_balance, 7000, 1000, 50, 2, 0);
+	pid_init(&elevator_pids.elevator_pos, 7000, 1000, 30, 0, 0);
+	pid_init(&elevator_pids.claw_pos, 7000, 1000, 30, 0, 0);
 	
-	
+	/*
 	uint8_t elevator_switch_left = 0;
 	uint8_t elevator_switch_right = 0;
 	uint8_t claw_switch = 0;
@@ -121,11 +113,18 @@ void elevator_init() {
 	initial_coordinates.elevator_left = motor_elevator_left.total_angle;
 	initial_coordinates.elevator_right = motor_elevator_right.total_angle;
 	initial_coordinates.claw_move = motor_claw_move.total_angle;
+	*/
+	reset_motor_measurement(&motor_elevator_left);
+	reset_motor_measurement(&motor_elevator_right);
+	reset_motor_measurement(&motor_claw_move);
+	
+	elevator_target_coordinates.x = 0;
+	elevator_target_coordinates.y = 0;
 }
 
 void elevator_update() {
-	int32_t left_pos = motor_elevator_left.total_angle - initial_coordinates.elevator_left;
-	int32_t right_pos = motor_elevator_right.total_angle - initial_coordinates.elevator_right;
+	int32_t left_pos = motor_elevator_left.total_angle;
+	int32_t right_pos = motor_elevator_right.total_angle;
 	float current_elevator_pos = (float)(left_pos + right_pos) / 2.0f;
 	
 	float left_balance_speed = pid_calc(&(elevator_pids.left_balance), left_pos, current_elevator_pos);
@@ -133,14 +132,13 @@ void elevator_update() {
 	
 	float elevation_speed = pid_calc(&(elevator_pids.elevator_pos), current_elevator_pos, elevator_target_coordinates.y);
 	
-	float left_power = pid_calc(&(elevator_pids.left_speed), motor_elevator_left.speed_rpm, left_balance_speed + elevation_speed);
-	float right_power = pid_calc(&(elevator_pids.right_speed), motor_elevator_right.speed_rpm, right_balance_speed + elevation_speed);
+	float left_speed = left_balance_speed + elevation_speed;
+	float right_speed = right_balance_speed + elevation_speed;
 	
-	int32_t claw_pos = motor_claw_move.total_angle - initial_coordinates.claw_move;
+	int32_t claw_pos = motor_claw_move.total_angle;
 	float claw_move_speed = pid_calc(&(elevator_pids.claw_pos), claw_pos, elevator_target_coordinates.x);
-	float claw_move_power = pid_calc(&(elevator_pids.claw_speed), motor_claw_move.speed_rpm, claw_move_speed);
 	
-	send_elevator_motor_current((int16_t)left_power, (int16_t)right_power, (int16_t) claw_move_power);
+	send_elevator_motor_current((int16_t)left_speed, (int16_t)right_speed, (int16_t) claw_move_speed);
 }
 
 

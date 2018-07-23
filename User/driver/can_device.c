@@ -39,6 +39,13 @@ moto_measure_t motor_claw_move;
 /* 底盘电机 */
 moto_measure_t motor_chassis[4];
 
+
+
+void reset_motor_measurement(moto_measure_t *ptr) {
+  ptr->round_cnt = 0;
+  ptr->offset_ecd = ptr->ecd;
+}
+
 /**
   * @brief     CAN1 中断回调函数，在程序初始化时注册
   * @param     recv_id: CAN1 接收到的数据 ID

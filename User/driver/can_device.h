@@ -84,6 +84,9 @@ typedef struct
   int32_t  filter_rate;
 } moto_measure_t;
 
+
+void reset_motor_measurement(moto_measure_t *ptr);
+
 extern moto_measure_t motor_elevator_left;
 extern moto_measure_t motor_elevator_right;
 extern moto_measure_t motor_claw_move;
