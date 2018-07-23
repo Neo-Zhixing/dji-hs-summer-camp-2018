@@ -33,7 +33,6 @@
 #include "rm_hal_lib.h"
 #include "chassis_task.h"
 #include "detect_task.h"
-#include "gimbal_task.h"
 #include "execute_task.h"
 #include "cmsis_os.h"
 
@@ -44,7 +43,7 @@
 #define USER_TASK1 chassis_task
 #define USER_TASK2 execute_task
 //#define USER_TASK3 detect_task
-//#define USER_TASK4 gimbal_task
+//#define USER_TASK4
 //#define USER_TASK5
 
 /**

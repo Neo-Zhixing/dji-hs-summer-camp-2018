@@ -39,19 +39,18 @@
 typedef enum
 {
   //接收ID
-  CAN_3508_M1_ID       = 0x201,
-  CAN_3508_M2_ID       = 0x202,
-  CAN_3508_M3_ID       = 0x203,
-  CAN_3508_M4_ID       = 0x204,
-  CAN_YAW_MOTOR_ID     = 0x205,
-  CAN_PIT_MOTOR_ID     = 0x206, 
-  CAN_TRIGGER_MOTOR_ID = 0x207,
-  CAN_test_moto_ID     = 0x208,
+  CAN_CHASSIS_M1_ID    = 0x201,
+  CAN_CHASSIS_M2_ID    = 0x202,
+  CAN_CHASSIS_M3_ID    = 0x203,
+  CAN_CHASSIS_M4_ID    = 0x204,
+  CAN_ELEVATOR_LEFT_ID = 0x205,
+  CAN_ELEVATOR_RIGHT_ID= 0x206, 
+  CAN_CLAW_MOVE_ID     = 0x207,
 
 	
   //发送ID
-  CAN_CHASSIS_ID       = 0x200,
-  CAN_GIMBAL_ID        = 0x1ff,
+  CAN_CHASSIS_ID       = 0x200, // The first 4 motors
+  CAN_ELEVATOR_ID        = 0x1ff, // The last 4 motors
 
 } can_msg_id_e;
 
@@ -81,11 +80,11 @@ typedef struct
   int32_t  filter_rate;
 } moto_measure_t;
 
-extern moto_measure_t moto_chassis[];
-extern moto_measure_t moto_yaw;
-extern moto_measure_t moto_pit;
-extern moto_measure_t moto_trigger;
-extern moto_measure_t moto_test;
+extern moto_measure_t motor_elevator_left;
+extern moto_measure_t motor_elevator_right;
+extern moto_measure_t motor_claw_move;
+extern moto_measure_t motor_chassis[];
+
 
 /**
   * @brief     CAN1 中断回调函数，在程序初始化时注册
@@ -116,13 +115,11 @@ static void get_moto_offset(moto_measure_t *ptr, uint8_t data[]);
 /**
   * @brief     发送底盘电机电流数据到电调
   */
-void send_chassis_moto_current(int16_t current[]);
-void send_chassis_moto_zero_current(void);
+void send_chassis_motor_current(int16_t current[]);
+void send_chassis_motor_zero_current(void);
 /**
   * @brief     发送云台电机电流数据到电调
   */
-void send_gimbal_moto_current(int16_t yaw_current, int16_t pit_current);
-void send_gimbal_moto_zero_current(void);
-void set_test_motor_current(int16_t current_data[]);
+void send_elevator_motor_current(int16_t yaw_current, int16_t pit_current);
 
 #endif

@@ -60,26 +60,26 @@ void global_err_detector_init(void)
   glb_err.err_list[REMOTE_CTRL_OFFLINE].last_time   = 0x00;
   glb_err.err_list[REMOTE_CTRL_OFFLINE].enable      = 1;
 
-  glb_err.err_list[GIMBAL_PIT_OFFLINE].err_exist   = 0;
-  glb_err.err_list[GIMBAL_PIT_OFFLINE].warn_pri    = 9;
-  glb_err.err_list[GIMBAL_PIT_OFFLINE].set_timeout = 200;
-  glb_err.err_list[GIMBAL_PIT_OFFLINE].delta_time  = 0;
-  glb_err.err_list[GIMBAL_PIT_OFFLINE].last_time   = 0x00;
-  glb_err.err_list[GIMBAL_PIT_OFFLINE].enable      = 0; // We don't have gimbal yet
+  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].err_exist   = 0;
+  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].warn_pri    = 9;
+  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].set_timeout = 200;
+  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].delta_time  = 0;
+  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].last_time   = 0x00;
+  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].enable      = 0;
 
-  glb_err.err_list[GIMBAL_YAW_OFFLINE].err_exist   = 0;
-  glb_err.err_list[GIMBAL_YAW_OFFLINE].warn_pri    = 8;
-  glb_err.err_list[GIMBAL_YAW_OFFLINE].set_timeout = 200;
-  glb_err.err_list[GIMBAL_YAW_OFFLINE].delta_time  = 0;
-  glb_err.err_list[GIMBAL_YAW_OFFLINE].last_time   = 0x00;
-  glb_err.err_list[GIMBAL_YAW_OFFLINE].enable      = 0; // We don't have gimbal yet
+  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].err_exist   = 0;
+  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].warn_pri    = 8;
+  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].set_timeout = 200;
+  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].delta_time  = 0;
+  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].last_time   = 0x00;
+  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].enable      = 0;
 
-  glb_err.err_list[TRIGGER_MOTO_OFFLINE].err_exist   = 0;
-  glb_err.err_list[TRIGGER_MOTO_OFFLINE].warn_pri    = 6;
-  glb_err.err_list[TRIGGER_MOTO_OFFLINE].set_timeout = 200;
-  glb_err.err_list[TRIGGER_MOTO_OFFLINE].delta_time  = 0;
-  glb_err.err_list[TRIGGER_MOTO_OFFLINE].last_time   = 0x00;
-  glb_err.err_list[TRIGGER_MOTO_OFFLINE].enable      = 0; // We don't have a trigger motor yet
+  glb_err.err_list[CLAW_MOVE_OFFLINE].err_exist   = 0;
+  glb_err.err_list[CLAW_MOVE_OFFLINE].warn_pri    = 6;
+  glb_err.err_list[CLAW_MOVE_OFFLINE].set_timeout = 200;
+  glb_err.err_list[CLAW_MOVE_OFFLINE].delta_time  = 0;
+  glb_err.err_list[CLAW_MOVE_OFFLINE].last_time   = 0x00;
+  glb_err.err_list[CLAW_MOVE_OFFLINE].enable      = 0;
 
   for (int i = 0; i < 4; i++)
   {
@@ -187,7 +187,7 @@ void module_offline_callback(void)
       }
     }break;
     
-    case GIMBAL_YAW_OFFLINE:
+    case ELEVATOR_LEFT_OFFLINE:
     {
       if (err_count == 1
           || err_count == 7)
@@ -202,7 +202,7 @@ void module_offline_callback(void)
       }
     }break;
     
-    case GIMBAL_PIT_OFFLINE:
+    case ELEVATOR_RIGHT_OFFLINE:
     {
       if (err_count == 1
           || err_count == 7
@@ -218,7 +218,7 @@ void module_offline_callback(void)
       }
     }break;
     
-    case TRIGGER_MOTO_OFFLINE:
+    case CLAW_MOVE_OFFLINE:
     {
       if (err_count == 1
           || err_count == 7

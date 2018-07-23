@@ -48,9 +48,7 @@ typedef enum
   CHASSIS_STOP,          //底盘停止
   CHASSIS_RELAX,         //底盘失能
   CHASSIS_OPEN_LOOP,     //底盘开环
-  CHASSIS_FOLLOW_GIMBAL, //底盘跟随云台
   CHASSIS_FIXED_ROUTE,   //底盘固定路线
-  CHASSIS_TWIST,         //底盘扭腰模式
 	CHASSIS_AUTONOMOUS,    //Autonomous Programs
 } chassis_mode_e;
 

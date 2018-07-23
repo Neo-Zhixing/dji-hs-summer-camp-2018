@@ -452,11 +452,6 @@
               <FilePath>..\User\startup.c</FilePath>
             </File>
             <File>
-              <FileName>gimbal_task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\app\gimbal_task.c</FilePath>
-            </File>
-            <File>
               <FileName>chassis_task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\app\chassis_task.c</FilePath>
@@ -480,16 +475,6 @@
               <FileName>chassis_custom.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\app\chassis_custom.c</FilePath>
-            </File>
-            <File>
-              <FileName>gimbal_custom.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\app\gimbal_custom.c</FilePath>
-            </File>
-            <File>
-              <FileName>shoot_custom.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\app\shoot_custom.c</FilePath>
             </File>
             <File>
               <FileName>sys.h</FileName>

@@ -32,15 +32,12 @@
 #include "detect_task.h"
 #include "sys.h"
 
-/* 云台电机 */
-moto_measure_t moto_pit;
-moto_measure_t moto_yaw;
-/* 拨弹电机 */
-moto_measure_t moto_trigger;
+/* Elevator Motors */
+moto_measure_t motor_elevator_left;
+moto_measure_t motor_elevator_right;
+moto_measure_t motor_claw_move;
 /* 底盘电机 */
-moto_measure_t moto_chassis[4];
-/* 外围模块测试电机 */
-moto_measure_t moto_test;
+moto_measure_t motor_chassis[4];
 
 /**
   * @brief     CAN1 中断回调函数，在程序初始化时注册
@@ -49,71 +46,29 @@ moto_measure_t moto_test;
   */
 void can1_recv_callback(uint32_t recv_id, uint8_t data[])
 {
-  switch (recv_id)
-  {
-    case CAN_3508_M1_ID:
-    {
-      moto_chassis[0].msg_cnt++ <= 50 ? get_moto_offset(&moto_chassis[0], data) : \
-      encoder_data_handle(&moto_chassis[0], data);
-      err_detector_hook(CHASSIS_M1_OFFLINE);
-    }
-    break;
-    case CAN_3508_M2_ID:
-    {
-      moto_chassis[1].msg_cnt++ <= 50 ? get_moto_offset(&moto_chassis[1], data) : \
-      encoder_data_handle(&moto_chassis[1], data);
-      err_detector_hook(CHASSIS_M2_OFFLINE);
-    }
-    break;
-
-    case CAN_3508_M3_ID:
-    {
-      moto_chassis[2].msg_cnt++ <= 50 ? get_moto_offset(&moto_chassis[2], data) : \
-      encoder_data_handle(&moto_chassis[2], data);
-      err_detector_hook(CHASSIS_M3_OFFLINE);
-    }
-    break;
-    case CAN_3508_M4_ID:
-    {
-      moto_chassis[3].msg_cnt++ <= 50 ? get_moto_offset(&moto_chassis[3], data) : \
-      encoder_data_handle(&moto_chassis[3], data);
-      err_detector_hook(CHASSIS_M4_OFFLINE);
-    }
-    break;
-    case CAN_YAW_MOTOR_ID:
-    {
-      encoder_data_handle(&moto_yaw, data);
-      err_detector_hook(GIMBAL_YAW_OFFLINE);
-    }
-    break;
-    case CAN_PIT_MOTOR_ID:
-    {
-      encoder_data_handle(&moto_pit, data);
-      err_detector_hook(GIMBAL_PIT_OFFLINE);
-    }
-    break;
-    case CAN_TRIGGER_MOTOR_ID:
-    {
-      moto_trigger.msg_cnt++;
-      moto_trigger.msg_cnt <= 10 ? get_moto_offset(&moto_trigger, data) : encoder_data_handle(&moto_trigger, data);
-      err_detector_hook(TRIGGER_MOTO_OFFLINE);
-    }
-    break;
-    case CAN_test_moto_ID:
-    {
-      moto_test.msg_cnt++ <= 50 ? get_moto_offset(&moto_test, data) : \
-      encoder_data_handle(&moto_test, data);
-      
-    }
-    break;
-		
-		
-		
-    default:
-    {
-    }
-    break;
-  }
+	moto_measure_t * motors[7] = {
+		&motor_chassis[0],
+		&motor_chassis[1],
+		&motor_chassis[2],
+		&motor_chassis[3],
+		&motor_elevator_left,
+		&motor_elevator_right,
+		&motor_claw_move,
+	};
+	err_id_e errorIDs[7] = {
+		CHASSIS_M1_OFFLINE,
+		CHASSIS_M2_OFFLINE,
+		CHASSIS_M3_OFFLINE,
+		CHASSIS_M4_OFFLINE,
+		ELEVATOR_LEFT_OFFLINE,
+		ELEVATOR_RIGHT_OFFLINE,
+		CLAW_MOVE_OFFLINE,
+	};
+	
+	uint8_t id = (uint8_t)recv_id - 1;
+	motors[id]->msg_cnt++ <= 50 ? get_moto_offset(motors[id], data) : \
+	encoder_data_handle(motors[id], data);
+	err_detector_hook(errorIDs[id]);
 }
   
 /**
@@ -192,83 +147,40 @@ static void encoder_data_handle(moto_measure_t *ptr, uint8_t data[])
 /**
   * @brief     发送底盘电机电流数据到电调
   */
-void send_chassis_moto_current(int16_t current[])
+void send_chassis_motor_current(int16_t current[])
 {
   static uint8_t data[8];
+	for (uint8_t i=0; i<4; i++) {
+		data[2*i] = current[i] >> 8;
+		data[2*i + 1] = current[i];
+	}
   
-  data[0] = current[0] >> 8;
-  data[1] = current[0];
-  data[2] = current[1] >> 8;
-  data[3] = current[1];
-  data[4] = current[2] >> 8;
-  data[5] = current[2];
-  data[6] = current[3] >> 8;
-  data[7] = current[3];
-  
-  write_can(CHASSIS_CAN, CAN_CHASSIS_ID, data);
+  write_can(USER_CAN1, CAN_CHASSIS_ID, data);
 }
-void send_chassis_moto_zero_current(void)
+void send_chassis_motor_zero_current(void)
 {
   static uint8_t data[8];
+	for (uint8_t i=0; i<8; i++)
+		data[i] = 0;
   
-  data[0] = 0;
-  data[1] = 0;
-  data[2] = 0;
-  data[3] = 0;
-  data[4] = 0;
-  data[5] = 0;
-  data[6] = 0;
-  data[7] = 0;
-  
-  write_can(CHASSIS_CAN, CAN_CHASSIS_ID, data);
+  write_can(USER_CAN1, CAN_CHASSIS_ID, data);
 }
 
 /**
-  * @brief     发送云台电机电流数据到电调
+  * @brief     发送Elevator电机电流数据到电调
   */
-extern int16_t trigger_moto_current;
-void send_gimbal_moto_current(int16_t yaw_current, int16_t pit_current)
+void send_elevator_motor_current(int16_t elevator_current, int16_t claw_move_current)
 {
   static uint8_t data[8];
-  int16_t trigger_current = trigger_moto_current;
   
-  data[0] = -yaw_current >> 8;
-  data[1] = -yaw_current;
-  data[2] = pit_current >> 8;
-  data[3] = pit_current;
-  data[4] = trigger_current >> 8;
-  data[5] = trigger_current;
+  data[0] = -elevator_current >> 8;
+  data[1] = -elevator_current;
+  data[2] = elevator_current >> 8;
+  data[3] = elevator_current;
+  data[4] = claw_move_current >> 8;
+  data[5] = claw_move_current;
   data[6] = 0;
   data[7] = 0;
   
-  write_can(GIMBAL_CAN, CAN_GIMBAL_ID, data);
-}
-void send_gimbal_moto_zero_current(void)
-{
-  static uint8_t data[8];
-  
-  data[0] = 0;
-  data[1] = 0;
-  data[2] = 0;
-  data[3] = 0;
-  data[4] = 0;
-  data[5] = 0;
-  data[6] = 0;
-  data[7] = 0;
-  
-  write_can(GIMBAL_CAN, CAN_GIMBAL_ID, data);
-}
-void set_test_motor_current(int16_t test_moto_current[])
-{
-  static uint8_t data[8];
-  
-  data[0] = 0;
-  data[1] = 0;
-  data[2] = 0;
-  data[3] = 0;
-  data[4] = 0;
-  data[5] = 0;
-  data[6] = test_moto_current[0] >> 8;;
-  data[7] = test_moto_current[0];;
-  write_can(CHASSIS_CAN, CAN_GIMBAL_ID, data);
+  write_can(USER_CAN1, CAN_ELEVATOR_ID, data);
 }

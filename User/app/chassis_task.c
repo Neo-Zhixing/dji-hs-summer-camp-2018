@@ -30,7 +30,6 @@
 
 #include "chassis_task.h"
 #include "detect_task.h"
-#include "gimbal_task.h"
 #include "can_device.h"
 #include "uart_device.h"
 #include "keyboard.h"
@@ -60,18 +59,6 @@ void chassis_task(const void* argu)
 
     switch (chassis.mode)
     {
-      //底盘跟随云台模式，右侧拨杆在上面
-      case CHASSIS_FOLLOW_GIMBAL:
-      {
-        chassis_control_information_get();
-        
-        //底盘跟随云台旋转控制，覆盖前面计算出来的值
-        if ((gim.ctrl_mode == GIMBAL_CLOSE_LOOP_ZGYRO)
-         || ((gim.ctrl_mode == GIMBAL_NO_ACTION) && (gim.no_action_flag == 1)))
-          chassis.vw = pid_calc(&pid_chassis_angle, yaw_relative_angle, 0);
-        else
-          chassis.vw = 0;
-      }break;
       
       //底盘开环模式，右侧拨杆在中间
       //此模式适用于不装云台情况下单独控制底盘使用
@@ -79,15 +66,7 @@ void chassis_task(const void* argu)
       {
         chassis_control_information_get();
       }break;
-      
-      case CHASSIS_TWIST:
-      {
-        chassis_control_information_get();
-        
-        //底盘扭腰旋转速度处理，覆盖前面计算出来的值
-        chassis_twist_handle();
-      }break;
-			
+
 			case CHASSIS_AUTONOMOUS:
 			{
 				if (chassis.mode != chassis.last_mode) {
@@ -107,7 +86,8 @@ void chassis_task(const void* argu)
     
     if (chassis.mode == CHASSIS_RELAX || glb_err.err_list[REMOTE_CTRL_OFFLINE].err_exist)
     {
-      send_chassis_moto_zero_current();
+			
+      send_chassis_motor_zero_current();
     }
     else
     {
@@ -129,7 +109,7 @@ void get_chassis_mode(void)
   switch (rc.sw2)
   {
     case RC_UP:
-      chassis.mode = CHASSIS_FOLLOW_GIMBAL;
+      //chassis.mode = CHASSIS_FOLLOW_GIMBAL;
     break;
     
     case RC_MI:
@@ -140,29 +120,6 @@ void get_chassis_mode(void)
       chassis.mode = CHASSIS_AUTONOMOUS;
     break;
   }
-  
-//  switch (rc.sw1)
-//  {
-//    case RC_UP: //user custom function
-//    break;
-//    
-//    case RC_MI: //user custom function
-//    break;
-
-//    case RC_DN:
-//    {
-//      if (chassis.mode == CHASSIS_FOLLOW_GIMBAL)
-//        chassis.mode = CHASSIS_TWIST;
-//    }
-//    break;
-//  }
-//  
-//  if (rc.sw2 == RC_DN)
-//    chassis.mode = CHASSIS_STOP;
-//  
-//  if (chassis.mode != CHASSIS_TWIST)
-//    twist_count = 0;
-  
 }
 /**
   * @brief     initialize chassis motor pid parameter

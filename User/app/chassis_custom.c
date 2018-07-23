@@ -30,7 +30,6 @@
 
 /************************************ 用户对底盘自定义控制 *************************************/
 #include "chassis_task.h"
-#include "gimbal_task.h"
 #include "can_device.h"
 #include "uart_device.h"
 #include "keyboard.h"
@@ -68,7 +67,7 @@ void chassis_custom_control(void)
   chassis_close_loop_calculate();
   
   //将计算好的电流值发送给电调
-  send_chassis_moto_current(chassis_moto_current);
+  send_chassis_motor_current(chassis_moto_current);
 }
 
 /* 底盘的运动分解处理 */
@@ -123,7 +122,7 @@ void chassis_close_loop_calculate(void)
 {
   for (int i = 0; i < 4; i++)
   {
-    chassis_moto_current[i] = pid_calc(&pid_wheel_spd[i], moto_chassis[i].speed_rpm, chassis_moto_speed_ref[i]);
+    chassis_moto_current[i] = pid_calc(&pid_wheel_spd[i], motor_chassis[i].speed_rpm, chassis_moto_speed_ref[i]);
   }
 }
 
@@ -135,17 +134,3 @@ void chassis_open_loop_calculate(void)
   }
 }
 
-/* 底盘扭腰处理 */
-extern uint32_t twist_count;
-void chassis_twist_handle(void)
-{
-  /* 扭腰周期时间 */
-  static int16_t twist_period = TWIST_PERIOD/CHASSIS_PERIOD;
-  /* 扭腰最大角度限制 */
-  static int16_t twist_angle  = TWIST_ANGLE;
-  /* 生成扭腰角度 */
-  static float   chassis_angle_target;
-  twist_count++;
-  chassis_angle_target = twist_angle*sin(2*3.14/twist_period*twist_count);
-  chassis.vw = pid_calc(&pid_chassis_angle, yaw_relative_angle, chassis_angle_target);
-}

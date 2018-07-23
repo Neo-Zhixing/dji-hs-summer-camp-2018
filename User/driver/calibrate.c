@@ -50,17 +50,3 @@ void read_cali_data(void)
   read_flash((uint8_t*)&glb_cali_data, sizeof(global_cali_t));
 }
 
-/**
-  * @brief     云台校准数据保存函数
-  */
-void gimbal_cali_hook(void)
-{
-  if (glb_cali_data.gimbal_cali_data.cali_cmd == 1)
-  {
-    glb_cali_data.gimbal_cali_data.pit_offset = moto_pit.ecd;
-    glb_cali_data.gimbal_cali_data.yaw_offset = moto_yaw.ecd;
-    glb_cali_data.gimbal_cali_data.calied_flag = CALIED_FLAG;
-    glb_cali_data.gimbal_cali_data.cali_cmd  = 0;
-    save_cali_data();
-  }
-}

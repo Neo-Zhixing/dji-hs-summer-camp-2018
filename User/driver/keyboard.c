@@ -30,17 +30,17 @@
 
 #include "keyboard.h"
 #include "uart_device.h"
-#include "gimbal_task.h"
 #include "sys.h"
 
 /* mouse button long press time */
 #define LONG_PRESS_TIME  800   //ms
+#define UPDATE_PERIOD 5
 /* key acceleration time */
 #define KEY_ACC_TIME     1000  //ms
 
 km_control_t km;
 
-int16_t delta_spd = MAX_CHASSIS_VX_SPEED*1.0f/KEY_ACC_TIME*GIMBAL_PERIOD;
+int16_t delta_spd = MAX_CHASSIS_VX_SPEED*1.0f/KEY_ACC_TIME*UPDATE_PERIOD;
 
 /**
   * @brief     鼠标按键状态机
@@ -88,12 +88,12 @@ static void key_fsm(kb_state_e *sta, uint8_t key)
       {
         if (sta == &km.lk_sta)
         {
-          if (km.lk_cnt++ > LONG_PRESS_TIME/GIMBAL_PERIOD)
+          if (km.lk_cnt++ > LONG_PRESS_TIME/UPDATE_PERIOD)
             *sta = KEY_PRESS_LONG;
         }
         else
         {
-          if (km.rk_cnt++ > LONG_PRESS_TIME/GIMBAL_PERIOD)
+          if (km.rk_cnt++ > LONG_PRESS_TIME/UPDATE_PERIOD)
             *sta = KEY_PRESS_LONG;
         }
       }

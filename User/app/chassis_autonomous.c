@@ -35,8 +35,8 @@ void chassis_autonomous_reset(void) {
 
 void update_chassis_current_position() {
 	get_imu_data(&imudata);
-	chassis_current_position.x = -moto_chassis[0].total_angle - moto_chassis[1].total_angle + moto_chassis[2].total_angle + moto_chassis[3].total_angle;
-	chassis_current_position.y = -moto_chassis[0].total_angle +	moto_chassis[1].total_angle + moto_chassis[2].total_angle - moto_chassis[3].total_angle;
+	chassis_current_position.x = -motor_chassis[0].total_angle - motor_chassis[1].total_angle + motor_chassis[2].total_angle + motor_chassis[3].total_angle;
+	chassis_current_position.y = -motor_chassis[0].total_angle +	motor_chassis[1].total_angle + motor_chassis[2].total_angle - motor_chassis[3].total_angle;
 	
 	chassis_current_position.w = -imudata.angle_z;
 }

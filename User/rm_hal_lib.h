@@ -82,11 +82,8 @@ typedef enum
 } led_io_e;
 
 //CAN 设备端口定义
-#define USER_CAN1         1  //CAN1
-#define USER_CAN2         2  //CAN2
-#define CHASSIS_CAN       1  //底盘电机使用CAN1
-#define GIMBAL_CAN        1  //云台电机使用CAN1
-#define TRIGGER_CAN       1  //拨弹电机使用CAN1
+#define USER_CAN1        1  //CAN1
+#define USER_CAN2        2  //CAN2
 //CAN 设备相关函数
 /**
   * @brief     CAN 设备初始化
