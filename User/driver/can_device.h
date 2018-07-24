@@ -46,11 +46,16 @@ typedef enum
   CAN_ELEVATOR_LEFT_ID = 0x205,
   CAN_ELEVATOR_RIGHT_ID= 0x206, 
   CAN_CLAW_MOVE_ID     = 0x207,
+	
+	CAN_MILL_DECK0_ID = 0x201,
+  CAN_MILL_DECK1_ID = 0x202, 
+  CAN_MILL_DECK2_ID = 0x203,
 
 	
   //发送ID
   CAN_CHASSIS_ID       = 0x200, // The first 4 motors
   CAN_ELEVATOR_ID        = 0x1ff, // The last 4 motors
+	CAN_MILL_ID        = 0x200, // The last 4 motors
 
 } can_msg_id_e;
 
@@ -92,6 +97,9 @@ extern moto_measure_t motor_elevator_right;
 extern moto_measure_t motor_claw_move;
 extern moto_measure_t motor_chassis[];
 
+extern moto_measure_t motor_mill[];
+
+
 
 /**
   * @brief     CAN1 中断回调函数，在程序初始化时注册
@@ -128,5 +136,6 @@ void send_chassis_motor_zero_current(void);
   * @brief     发送云台电机电流数据到电调
   */
 void send_elevator_motor_current(int16_t elevator_current_left, int16_t elevator_current_right, int16_t claw_move_current);
+void send_mill_motor_current(int16_t current[]);
 
 #endif

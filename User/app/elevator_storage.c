@@ -33,12 +33,12 @@ y   -------------
   x    0     1
 */
 
-block_t block_storage_get(coordinate_t coordinate) {
-	return block_storage[coordinate.x][coordinate.y];
+block_t block_storage_get(coordinate_t * coordinate) {
+	return block_storage[coordinate->x][coordinate->y];
 }
 
-void block_storage_set(coordinate_t coordinate, block_t block) {
-	block_storage[coordinate.x][coordinate.y] = block;
+void block_storage_set(coordinate_t * coordinate, block_t block) {
+	block_storage[coordinate->x][coordinate->y] = block;
 }
 
 static coordinate_t block_storage_cooordinates;
@@ -91,10 +91,10 @@ void elevator_init() {
 	set_digital_io_dir(ELEVATOR_LIMIT_SWITCH_LEFT, IO_INPUT);
 	set_digital_io_dir(ELEVATOR_LIMIT_SWITCH_RIGHT, IO_INPUT);
 	set_digital_io_dir(CLAW_MOVE_LIMIT_SWITCH, IO_INPUT);
-	pid_init(&elevator_pids.left_balance, 7000, 1000, 50, 2, 0);
-	pid_init(&elevator_pids.right_balance, 7000, 1000, 50, 2, 0);
-	pid_init(&elevator_pids.elevator_pos, 7000, 1000, 30, 0, 0);
-	pid_init(&elevator_pids.claw_pos, 7000, 1000, 30, 0, 0);
+	pid_init(&elevator_pids.left_balance, GM3510_MAX_CURRENT*0.2, 1000, 50, 2, 0);
+	pid_init(&elevator_pids.right_balance, GM3510_MAX_CURRENT*0.2, 1000, 50, 2, 0);
+	pid_init(&elevator_pids.elevator_pos, GM3510_MAX_CURRENT*0.95, 1000, 30, 0, 0);
+	pid_init(&elevator_pids.claw_pos, GM3510_MAX_CURRENT*0.95, 1000, 30, 0, 0);
 	
 	/*
 	uint8_t elevator_switch_left = 0;
@@ -139,6 +139,34 @@ void elevator_update() {
 	float claw_move_speed = pid_calc(&(elevator_pids.claw_pos), claw_pos, elevator_target_coordinates.x);
 	
 	send_elevator_motor_current((int16_t)left_speed, (int16_t)right_speed, (int16_t) claw_move_speed);
+}
+
+const float elevator_position_x[2] = {
+	300,
+	600,
+};
+const float elevator_position_y[3] = {
+	300,
+	600, 
+	900,
+};
+
+void elevator_move_to_storage_coordinates(coordinate_t * theCoords) {
+	elevator_target_coordinates.x = elevator_position_x[theCoords->x];
+	elevator_target_coordinates.y = elevator_position_y[theCoords->y];
+}
+
+void elevator_store_block(block_t theBlock) {
+	coordinate_t * theCoords = block_storage_coordinate_for_block(BLOCK_EMPTY);
+	if (theCoords == NULL) {
+		return;
+	}
+	storage_blocker_swing(theCoords->x == 0 ? STORAGE_BLOCKER_SWING_RIGHT : STORAGE_BLOCKER_SWING_LEFT);
+	
+	elevator_move_to_storage_coordinates(theCoords);
+	
+	
+	block_storage_set(theCoords, theBlock);
 }
 
 

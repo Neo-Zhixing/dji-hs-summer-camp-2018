@@ -62,7 +62,7 @@ void init_setup(void)
   //注册CAN1接收数据回调函数
   can_recv_callback_register(USER_CAN1, can1_recv_callback);
   //注册CAN2接收数据回调函数，没有设备使用 CAN2，不需要注册
-  //can_recv_callback_register(USER_CAN2, can2_recv_callback); 
+  can_recv_callback_register(USER_CAN2, can2_recv_callback); 
   //开启CAN接收数据中断
   can_receive_start();
 }

@@ -38,6 +38,7 @@ moto_measure_t motor_elevator_right;
 moto_measure_t motor_claw_move;
 /* 底盘电机 */
 moto_measure_t motor_chassis[4];
+moto_measure_t motor_mill[3];
 
 
 
@@ -190,4 +191,17 @@ void send_elevator_motor_current(int16_t elevator_current_left, int16_t elevator
   data[7] = 0;
   
   write_can(USER_CAN1, CAN_ELEVATOR_ID, data);
+}
+
+void send_mill_motor_current(int16_t current[])
+{
+  static uint8_t data[8];
+	for (uint8_t i=0; i<3; i++) {
+		data[2*i] = current[i] >> 8;
+		data[2*i + 1] = current[i];
+	}
+	data[6] = 0;
+	data[7] = 0;
+  
+  write_can(USER_CAN2, CAN_MILL_ID, data);
 }
