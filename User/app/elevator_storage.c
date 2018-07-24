@@ -55,23 +55,19 @@ coordinate_t * block_storage_coordinate_for_block(block_t block) {
 }
 
 
-typedef enum {
-	STORAGE_BLOCKER_SWING_LEFT = 400,
-	STORAGE_BLOCKER_SWING_RIGHT = 800,
-	STORAGE_BLOCKER_SWING_MID = 600,
-	STORAGE_BLOCKER_SWING_OPEN_LEFT = 1500,
-	STORAGE_BLOCKER_SWING_OPEN_RIGHT = 0,
-} storage_blocker_swing_state;
-
-
-void storage_blocker_init() {
-	set_pwm_group_param(PWM_GROUP1, 2000);
-	start_pwm_output(PWM_IO1);
-	set_pwm_param(PWM_IO1, STORAGE_BLOCKER_SWING_MID);
+void storage_blocker_swing(storage_blocker_swing_state state) {
+	set_pwm_param(PWM_IO4, state);
 }
 
-void storage_blocker_swing(storage_blocker_swing_state state) {
-	set_pwm_param(PWM_IO1, state);
+void claw_horizontal_set(uint8_t closed) {
+	uint32_t delta = closed ? 500 : 0;
+	uint32_t base = 1500;
+	set_pwm_param(PWM_IO1, base + delta);
+	set_pwm_param(PWM_IO2, base - delta);
+}
+
+void claw_vertical_set(uint8_t closed) {
+	set_pwm_param(PWM_IO3, closed ? 1000 : 1500);
 }
 
 
@@ -91,10 +87,18 @@ void elevator_init() {
 	set_digital_io_dir(ELEVATOR_LIMIT_SWITCH_LEFT, IO_INPUT);
 	set_digital_io_dir(ELEVATOR_LIMIT_SWITCH_RIGHT, IO_INPUT);
 	set_digital_io_dir(CLAW_MOVE_LIMIT_SWITCH, IO_INPUT);
-	pid_init(&elevator_pids.left_balance, GM3510_MAX_CURRENT*0.2, 1000, 50, 2, 0);
-	pid_init(&elevator_pids.right_balance, GM3510_MAX_CURRENT*0.2, 1000, 50, 2, 0);
+	pid_init(&elevator_pids.left_balance, GM3510_MAX_CURRENT*0.2, 1000, 80, 5, 0);
+	pid_init(&elevator_pids.right_balance, GM3510_MAX_CURRENT*0.2, 1000, 80, 5, 0);
 	pid_init(&elevator_pids.elevator_pos, GM3510_MAX_CURRENT*0.95, 1000, 30, 0, 0);
 	pid_init(&elevator_pids.claw_pos, GM3510_MAX_CURRENT*0.95, 1000, 30, 0, 0);
+	
+	set_pwm_group_param(PWM_GROUP1, 20000);
+	set_pwm_group_param(PWM_GROUP2, 20000);
+	claw_horizontal_set(1);
+	claw_vertical_set(1);
+	for (uint8_t i=1; i<=5; i++) {
+		start_pwm_output(i);
+	}
 	
 	/*
 	uint8_t elevator_switch_left = 0;
@@ -137,8 +141,18 @@ void elevator_update() {
 	
 	int32_t claw_pos = motor_claw_move.total_angle;
 	float claw_move_speed = pid_calc(&(elevator_pids.claw_pos), claw_pos, elevator_target_coordinates.x);
+	/*
+	if ((left_pos < -43138 && left_speed < 0) || (left_pos > 0 && left_speed > 0))
+		left_speed = 0;
 	
+	if ((right_pos < -43138 && left_speed < 0) || (right_pos > 0 && right_speed > 0))
+		right_speed = 0;
+	*/
 	send_elevator_motor_current((int16_t)left_speed, (int16_t)right_speed, (int16_t) claw_move_speed);
+	
+	uint8_t value;
+	read_digital_io(CLAW_MOVE_LIMIT_SWITCH, &value);
+	write_led_io(LED_IO1, value ? LED_ON : LED_OFF);
 }
 
 const float elevator_position_x[2] = {

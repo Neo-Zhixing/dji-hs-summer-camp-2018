@@ -53,9 +53,10 @@ typedef enum
 
 	
   //发送ID
-  CAN_CHASSIS_ID       = 0x200, // The first 4 motors
-  CAN_ELEVATOR_ID        = 0x1ff, // The last 4 motors
-	CAN_MILL_ID        = 0x200, // The last 4 motors
+  CAN_CHASSIS_ID       = 0x200,
+  CAN_ELEVATOR_ID        = 0x1ff,
+	CAN_MILL_ID        = 0x200,
+	CAN_FLYWHEEL_ID        = 0x1ff,
 
 } can_msg_id_e;
 
@@ -137,5 +138,6 @@ void send_chassis_motor_zero_current(void);
   */
 void send_elevator_motor_current(int16_t elevator_current_left, int16_t elevator_current_right, int16_t claw_move_current);
 void send_mill_motor_current(int16_t current[]);
+void send_flywheel_motor_current(int16_t current[]);
 
 #endif

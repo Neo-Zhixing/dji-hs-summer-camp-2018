@@ -205,3 +205,15 @@ void send_mill_motor_current(int16_t current[])
   
   write_can(USER_CAN2, CAN_MILL_ID, data);
 }
+
+void send_flywheel_motor_current(int16_t current[])
+{
+  static uint8_t data[8];
+	for (uint8_t i=0; i<2; i++) {
+		data[2*i] = current[i] >> 8;
+		data[2*i + 1] = current[i];
+		data[2*i + 2] = (-current[i]) >> 8;
+		data[2*i + 3] = -current[i];
+	}
+  write_can(USER_CAN2, CAN_FLYWHEEL_ID, data);
+}
