@@ -56,18 +56,18 @@ coordinate_t * block_storage_coordinate_for_block(block_t block) {
 
 
 void storage_blocker_swing(storage_blocker_swing_state state) {
-	set_pwm_param(PWM_IO4, state);
+	set_pwm_param(PWM_IO7, state);
 }
 
 void claw_horizontal_set(uint8_t closed) {
-	uint32_t delta = closed ? 500 : 0;
-	uint32_t base = 1500;
-	set_pwm_param(PWM_IO1, base + delta);
-	set_pwm_param(PWM_IO2, base - delta);
+	set_pwm_param(PWM_IO1, closed ? 2020 : 1800);
+	set_pwm_param(PWM_IO2, closed ? 1010 : 1300);
+	set_pwm_param(PWM_IO3, closed ? 1990 : 1800);
+	set_pwm_param(PWM_IO4, closed ? 980 : 1300);
 }
 
 void claw_vertical_set(uint8_t closed) {
-	set_pwm_param(PWM_IO3, closed ? 1000 : 1500);
+	set_pwm_param(PWM_IO3, closed ? 1800 : 1300);
 }
 
 
@@ -94,8 +94,8 @@ void elevator_init() {
 	
 	set_pwm_group_param(PWM_GROUP1, 20000);
 	set_pwm_group_param(PWM_GROUP2, 20000);
-	claw_horizontal_set(1);
-	claw_vertical_set(1);
+	claw_horizontal_set(0);
+	claw_vertical_set(0);
 	for (uint8_t i=1; i<=5; i++) {
 		start_pwm_output(i);
 	}
