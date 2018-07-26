@@ -43,7 +43,7 @@
   */
 #define USER_TASK1 chassis_task
 #define USER_TASK2 elevator_task
-//#define USER_TASK3 execute_task
+#define USER_TASK3 execute_task
 //#define USER_TASK4
 //#define USER_TASK5
 

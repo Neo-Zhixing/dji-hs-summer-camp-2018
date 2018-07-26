@@ -93,9 +93,8 @@ typedef struct
 
 void reset_motor_measurement(moto_measure_t *ptr);
 
-extern moto_measure_t motor_elevator_left;
-extern moto_measure_t motor_elevator_right;
-extern moto_measure_t motor_claw_move;
+extern moto_measure_t motor_elevator[];
+extern moto_measure_t motor_claw[];
 extern moto_measure_t motor_chassis[];
 
 extern moto_measure_t motor_mill[];
@@ -136,7 +135,7 @@ void send_chassis_motor_zero_current(void);
 /**
   * @brief     发送云台电机电流数据到电调
   */
-void send_elevator_motor_current(int16_t elevator_current_left, int16_t elevator_current_right, int16_t claw_move_current);
+void send_elevator_motor_current(int16_t elevator_current[], int16_t claw_current[]);
 void send_mill_motor_current(int16_t current[]);
 void send_flywheel_motor_current(int16_t current[]);
 
