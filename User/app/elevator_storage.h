@@ -3,7 +3,8 @@
 
 #include "sys.h"
 typedef struct {
-	float x, y;
+	float x, y, z;
+	int8_t w;
 } elevator_target_coordinates_t;
 extern elevator_target_coordinates_t elevator_target_coordinates;
 void elevator_init(void);

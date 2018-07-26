@@ -60,27 +60,19 @@ void global_err_detector_init(void)
   glb_err.err_list[REMOTE_CTRL_OFFLINE].last_time   = 0x00;
   glb_err.err_list[REMOTE_CTRL_OFFLINE].enable      = 1;
 
-  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].err_exist   = 0;
-  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].warn_pri    = 9;
-  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].set_timeout = 200;
-  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].delta_time  = 0;
-  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].last_time   = 0x00;
-  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].enable      = 0;
+  glb_err.err_list[ELEVATOR_OFFLINE].err_exist   = 0;
+  glb_err.err_list[ELEVATOR_OFFLINE].warn_pri    = 9;
+  glb_err.err_list[ELEVATOR_OFFLINE].set_timeout = 200;
+  glb_err.err_list[ELEVATOR_OFFLINE].delta_time  = 0;
+  glb_err.err_list[ELEVATOR_OFFLINE].last_time   = 0x00;
+  glb_err.err_list[ELEVATOR_OFFLINE].enable      = 0;
 
-  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].err_exist   = 0;
-  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].warn_pri    = 8;
-  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].set_timeout = 200;
-  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].delta_time  = 0;
-  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].last_time   = 0x00;
-  glb_err.err_list[ELEVATOR_LEFT_OFFLINE].enable      = 0;
-
-  glb_err.err_list[CLAW_MOVE_OFFLINE].err_exist   = 0;
-  glb_err.err_list[CLAW_MOVE_OFFLINE].warn_pri    = 6;
-  glb_err.err_list[CLAW_MOVE_OFFLINE].set_timeout = 200;
-  glb_err.err_list[CLAW_MOVE_OFFLINE].delta_time  = 0;
-  glb_err.err_list[CLAW_MOVE_OFFLINE].last_time   = 0x00;
-  glb_err.err_list[CLAW_MOVE_OFFLINE].enable      = 0;
-
+  glb_err.err_list[CLAW_OFFLINE].err_exist   = 0;
+  glb_err.err_list[CLAW_OFFLINE].warn_pri    = 8;
+  glb_err.err_list[CLAW_OFFLINE].set_timeout = 200;
+  glb_err.err_list[CLAW_OFFLINE].delta_time  = 0;
+  glb_err.err_list[CLAW_OFFLINE].last_time   = 0x00;
+  glb_err.err_list[CLAW_OFFLINE].enable      = 0;
   for (int i = 0; i < 4; i++)
   {
     glb_err.err_list[CHASSIS_M1_OFFLINE + i].err_exist   = 0;
@@ -187,7 +179,7 @@ void module_offline_callback(void)
       }
     }break;
     
-    case ELEVATOR_LEFT_OFFLINE:
+    case ELEVATOR_OFFLINE:
     {
       if (err_count == 1
           || err_count == 7)
@@ -202,7 +194,7 @@ void module_offline_callback(void)
       }
     }break;
     
-    case ELEVATOR_RIGHT_OFFLINE:
+    case CLAW_OFFLINE:
     {
       if (err_count == 1
           || err_count == 7
@@ -217,7 +209,7 @@ void module_offline_callback(void)
         beep_ctrl = BEEP_OFF;
       }
     }break;
-    
+    /*
     case CLAW_MOVE_OFFLINE:
     {
       if (err_count == 1
@@ -233,7 +225,7 @@ void module_offline_callback(void)
         LED_R_OFF;
         beep_ctrl = BEEP_OFF;
       }
-    }break;
+    }break;*/
     
     default:
     {

@@ -33,9 +33,8 @@
 #include "sys.h"
 
 /* Elevator Motors */
-moto_measure_t motor_elevator_left;
-moto_measure_t motor_elevator_right;
-moto_measure_t motor_claw_move;
+moto_measure_t motor_elevator[2];
+moto_measure_t motor_claw[2];
 /* 底盘电机 */
 moto_measure_t motor_chassis[4];
 moto_measure_t motor_mill[3];
@@ -54,23 +53,25 @@ void reset_motor_measurement(moto_measure_t *ptr) {
   */
 void can1_recv_callback(uint32_t recv_id, uint8_t data[])
 {
-	moto_measure_t * motors[7] = {
+	moto_measure_t * motors[8] = {
 		&motor_chassis[0],
 		&motor_chassis[1],
 		&motor_chassis[2],
 		&motor_chassis[3],
-		&motor_elevator_left,
-		&motor_elevator_right,
-		&motor_claw_move,
+		&motor_elevator[0],
+		&motor_elevator[1],
+		&motor_claw[0],
+		&motor_claw[1],
 	};
-	err_id_e errorIDs[7] = {
+	err_id_e errorIDs[8] = {
 		CHASSIS_M1_OFFLINE,
 		CHASSIS_M2_OFFLINE,
 		CHASSIS_M3_OFFLINE,
 		CHASSIS_M4_OFFLINE,
-		ELEVATOR_LEFT_OFFLINE,
-		ELEVATOR_RIGHT_OFFLINE,
-		CLAW_MOVE_OFFLINE,
+		ELEVATOR_OFFLINE,
+		ELEVATOR_OFFLINE,
+		CLAW_OFFLINE,
+		CLAW_OFFLINE,
 	};
 	
 	uint8_t id = (uint8_t)recv_id - 1;
@@ -177,18 +178,18 @@ void send_chassis_motor_zero_current(void)
 /**
   * @brief     发送Elevator电机电流数据到电调
   */
-void send_elevator_motor_current(int16_t elevator_current_left, int16_t elevator_current_right, int16_t claw_move_current)
+void send_elevator_motor_current(int16_t elevator_current[], int16_t claw_current[])
 {
   static uint8_t data[8];
   
-  data[0] = elevator_current_left >> 8;
-  data[1] = elevator_current_left;
-  data[2] = elevator_current_right >> 8;
-  data[3] = elevator_current_right;
-  data[4] = claw_move_current >> 8;
-  data[5] = claw_move_current;
-  data[6] = 0;
-  data[7] = 0;
+  data[0] = elevator_current[0]>> 8;
+  data[1] = elevator_current[0];
+  data[2] = elevator_current[1] >> 8;
+  data[3] = elevator_current[1];
+  data[4] = claw_current[0] >> 8;
+  data[5] = claw_current[0];
+  data[6] = claw_current[1] >> 8;
+  data[7] = claw_current[1];
   
   write_can(USER_CAN1, CAN_ELEVATOR_ID, data);
 }

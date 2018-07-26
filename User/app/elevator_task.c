@@ -17,7 +17,7 @@ void elevator_task(const void* argu)
 			elevator_target_coordinates.y += 5;
 		else if (rc.kb.bit.E)
 			elevator_target_coordinates.y -= 5;
-		claw_horizontal_set(rc.sw1 == RC_DN || rc.mouse.l);
+  		claw_horizontal_set(rc.sw1 == RC_DN || rc.mouse.l);
 		
 			//int16_t theCurrent[3] = {-10000, -10000, -10000};
 		//send_mill_motor_current(theCurrent);
