@@ -46,7 +46,7 @@ coordinate_t * block_storage_coordinate_for_block(block_t block) {
 	for (uint8_t x=0; x < block_storage_x_slot_number; x++)
 		for (uint8_t y=0; y < block_storage_y_slot_number; y++) {
 		if (block_storage[x][y] == block) {
-			block_storage_cooordinates.x = x;
+			block_storage_cooordinates.x = x; 
 			block_storage_cooordinates.y = y;
 			return &block_storage_cooordinates;
 		}
@@ -67,7 +67,7 @@ void claw_horizontal_set(uint8_t closed) {
 }
 
 void claw_vertical_set(uint8_t closed) {
-	set_pwm_param(PWM_IO3, closed ? 1800 : 1300);
+	//set_pwm_param(PWM_IO3, closed ? 1800 : 1300);
 }
 
 
@@ -77,7 +77,10 @@ elevator_target_coordinates_t elevator_target_coordinates;
 
 static struct {
 	pid_t balance[2];
-	pid_t elevator_pos[3]; // 0: elevator_position; 1: claw_x; 2: claw_y;
+ 	pid_t elevator_pos[2];
+	pid_t elevator_speed[2];
+	pid_t claw_pos[2];
+	pid_t flywheel_speed[2];
 } elevator_pids;
 
 #define ELEVATOR_LIMIT_SWITCH_LEFT     5
@@ -89,12 +92,16 @@ void elevator_init() {
 	set_digital_io_dir(ELEVATOR_LIMIT_SWITCH_RIGHT, IO_INPUT);
 	set_digital_io_dir(CLAW_Y_LIMIT_SWITCH, IO_INPUT);
 	set_digital_io_dir(CLAW_Z_LIMIT_SWITCH, IO_INPUT);
-	pid_init(&elevator_pids.balance[0], GM3510_MAX_CURRENT*0.2, 1000, 80, 5, 0);
-	pid_init(&elevator_pids.balance[1], GM3510_MAX_CURRENT*0.2, 1000, 80, 5, 0);
-	pid_init(&elevator_pids.elevator_pos[0], GM3510_MAX_CURRENT*0.95, 1000, 30, 0, 0);
-	pid_init(&elevator_pids.elevator_pos[1], GM3510_MAX_CURRENT*0.95, 1000, 30, 0, 0);
-	pid_init(&elevator_pids.elevator_pos[2], GM3510_MAX_CURRENT*0.95, 1000, 30, 0, 0);
-	
+	pid_init(&elevator_pids.balance[0], 500, 1000, 3, 0, 0);
+	pid_init(&elevator_pids.balance[1], 500, 1000, 3, 0, 0);
+	pid_init(&elevator_pids.elevator_pos[0], 5000, 1000, 3, 0, 0);
+	pid_init(&elevator_pids.elevator_pos[1], 5000, 1000, 3, 0, 0);
+	pid_init(&elevator_pids.elevator_speed[0], C620_MAX_CURRENT*0.95, 1000, 2, 0, 0);
+	pid_init(&elevator_pids.elevator_speed[1], C620_MAX_CURRENT*0.95, 1000, 2, 0, 0);
+	pid_init(&elevator_pids.claw_pos[0], GM3510_MAX_CURRENT*0.95, 1000, 0, 0, 0);
+	pid_init(&elevator_pids.claw_pos[1], GM3510_MAX_CURRENT*0.95, 1000, 0, 0, 0);
+	pid_init(&elevator_pids.flywheel_speed[0], 1000, 100, 1, 0, 0);
+	pid_init(&elevator_pids.flywheel_speed[1], 1000, 100, 1, 0, 0);
 	set_pwm_group_param(PWM_GROUP1, 20000);
 	set_pwm_group_param(PWM_GROUP2, 20000);
 	claw_horizontal_set(0);
@@ -129,18 +136,26 @@ void elevator_init() {
 	elevator_target_coordinates.x = 0;
 	elevator_target_coordinates.y = 0;
 }
-
+float theTest;
 void elevator_update() {
-	float current_elevator_pos = (float)(motor_elevator[0].total_angle + motor_elevator[1].total_angle) / 2.0f;
-	
+	float current_elevator_pos = (float)(motor_elevator[0].total_angle - motor_elevator[1].total_angle) / 2.0f;
 	int16_t elevator_speed[2];
 	int16_t claw_speed[2];
-	float elevation_speed = pid_calc(&elevator_pids.elevator_pos[0], current_elevator_pos, elevator_target_coordinates.y);
-	for (uint8_t i=0; i<2; i++) {
-		elevator_speed[i] = pid_calc(&(elevator_pids.balance[i]), motor_elevator[i].total_angle, current_elevator_pos) + elevation_speed;
+	int16_t flywheel_power[2];
+	
+	elevator_speed[0] = pid_calc(&elevator_pids.balance[0], motor_elevator[0].total_angle, current_elevator_pos) \
+		+ pid_calc(&elevator_pids.elevator_pos[0], motor_elevator[0].total_angle, elevator_target_coordinates.y);
+	elevator_speed[1] = -pid_calc(&elevator_pids.balance[1], -motor_elevator[1].total_angle, current_elevator_pos) \
+		- pid_calc(&elevator_pids.elevator_pos[1], -motor_elevator[1].total_angle, elevator_target_coordinates.y);
+	
+	for(uint8_t i=0; i<2; i++) {
+		elevator_speed[i] = pid_calc(&elevator_pids.elevator_speed[i], motor_elevator[i].speed_rpm, elevator_speed[i]);
 	}
-	claw_speed[0] = pid_calc(&elevator_pids.elevator_pos[1], motor_claw[0].total_angle, elevator_target_coordinates.x);
-	claw_speed[1] = pid_calc(&elevator_pids.elevator_pos[2], motor_claw[1].total_angle, elevator_target_coordinates.z);
+	
+	flywheel_power[0] = pid_calc(&elevator_pids.flywheel_speed[0], motor_flywheel[0].speed_rpm, elevator_target_coordinates.flywheel_speed);
+	flywheel_power[1] = pid_calc(&elevator_pids.flywheel_speed[1], motor_flywheel[1].speed_rpm, -elevator_target_coordinates.flywheel_speed);
+	claw_speed[0] = pid_calc(&elevator_pids.claw_pos[0], motor_claw[0].total_angle, elevator_target_coordinates.x);
+	claw_speed[1] = pid_calc(&elevator_pids.claw_pos[2], motor_claw[1].total_angle, elevator_target_coordinates.z);
 	/*
 	if ((left_pos < -43138 && left_speed < 0) || (left_pos > 0 && left_speed > 0))
 		left_speed = 0;
@@ -149,6 +164,7 @@ void elevator_update() {
 		right_speed = 0;
 	*/
 	send_elevator_motor_current(elevator_speed, claw_speed);
+	send_flywheel_motor_current(flywheel_power);
 }
 
 const float elevator_position_x[2] = {

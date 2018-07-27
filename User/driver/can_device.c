@@ -38,6 +38,7 @@ moto_measure_t motor_claw[2];
 /* 底盘电机 */
 moto_measure_t motor_chassis[4];
 moto_measure_t motor_mill[3];
+moto_measure_t motor_flywheel[2];
 
 
 
@@ -87,15 +88,27 @@ void can1_recv_callback(uint32_t recv_id, uint8_t data[])
   */
 void can2_recv_callback(uint32_t recv_id, uint8_t data[])
 {
-  switch (recv_id)
-  {
-    //case CAN2 device handle
-    
-    default:
-    {
-    }
-    break;
-  }
+	moto_measure_t * motors[6] = {
+		&motor_mill[0],
+		&motor_mill[1],
+		&motor_mill[2],
+		NULL,
+		&motor_flywheel[0],
+		&motor_flywheel[1],
+	};
+	err_id_e errorIDs[6] = {
+		MILL_OFFLINE,
+		MILL_OFFLINE,
+		MILL_OFFLINE,
+		DEVICE_NORMAL,
+		FLYWHEEL_OFFLINE,
+		FLYWHEEL_OFFLINE,
+	};
+	
+	uint8_t id = (uint8_t)recv_id - 1;
+	motors[id]->msg_cnt++ <= 50 ? get_moto_offset(motors[id], data) : \
+	encoder_data_handle(motors[id], data);
+	err_detector_hook(errorIDs[id]);
 }
 
 /**
@@ -209,12 +222,10 @@ void send_mill_motor_current(int16_t current[])
 
 void send_flywheel_motor_current(int16_t current[])
 {
-  static uint8_t data[8];
-	for (uint8_t i=0; i<2; i++) {
-		data[2*i] = current[i] >> 8;
-		data[2*i + 1] = current[i];
-		data[2*i + 2] = (-current[i]) >> 8;
-		data[2*i + 3] = -current[i];
+	static uint8_t data[8];
+	for(uint8_t i=0; i<2; i++) {
+		data[i*2] = current[i] >> 8;
+		data[i*2+1] = current[i];
 	}
   write_can(USER_CAN2, CAN_FLYWHEEL_ID, data);
 }

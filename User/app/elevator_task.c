@@ -9,10 +9,14 @@ void elevator_task(const void* argu)
 	
 	elevator_init();
 	storage_blocker_swing(STORAGE_BLOCKER_SWING_MID);
+	set_digital_io_dir(DIGI_IO2, IO_INPUT);
   while(1) {
 		elevator_update();
-		elevator_target_coordinates.y -= rc.ch4 *0.04;
+		elevator_target_coordinates.y -= rc.ch4 *0.2;
+		uint8_t value;
+		read_digital_io(DIGI_IO2, &value);
 		
+		elevator_target_coordinates.flywheel_speed =  value ? -300 : 0;
 		if (rc.kb.bit.Q)
 			elevator_target_coordinates.y += 5;
 		else if (rc.kb.bit.E)

@@ -98,6 +98,7 @@ extern moto_measure_t motor_claw[];
 extern moto_measure_t motor_chassis[];
 
 extern moto_measure_t motor_mill[];
+extern moto_measure_t motor_flywheel[];
 
 
 
