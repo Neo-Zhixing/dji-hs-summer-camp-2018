@@ -67,7 +67,8 @@ void claw_horizontal_set(uint8_t closed) {
 }
 
 void claw_vertical_set(uint8_t closed) {
-	//set_pwm_param(PWM_IO3, closed ? 1800 : 1300);
+	set_pwm_param(PWM_IO5, closed ? 1000 : 1500);
+	set_pwm_param(PWM_IO6, closed ? 950 : 1300);
 }
 
 
@@ -98,7 +99,7 @@ void elevator_init() {
 	pid_init(&elevator_pids.elevator_pos[1], 5000, 1000, 3, 0, 0);
 	pid_init(&elevator_pids.elevator_speed[0], C620_MAX_CURRENT*0.95, 1000, 2, 0, 0);
 	pid_init(&elevator_pids.elevator_speed[1], C620_MAX_CURRENT*0.95, 1000, 2, 0, 0);
-	pid_init(&elevator_pids.claw_pos[0], GM3510_MAX_CURRENT*0.95, 1000, 0, 0, 0);
+	pid_init(&elevator_pids.claw_pos[0], GM3510_MAX_CURRENT*0.95, 1000, 30, 0, 0);
 	pid_init(&elevator_pids.claw_pos[1], GM3510_MAX_CURRENT*0.95, 1000, 0, 0, 0);
 	pid_init(&elevator_pids.flywheel_speed[0], 1000, 100, 1, 0, 0);
 	pid_init(&elevator_pids.flywheel_speed[1], 1000, 100, 1, 0, 0);
@@ -106,7 +107,7 @@ void elevator_init() {
 	set_pwm_group_param(PWM_GROUP2, 20000);
 	claw_horizontal_set(0);
 	claw_vertical_set(0);
-	for (uint8_t i=1; i<=5; i++) {
+	for (uint8_t i=1; i<=6; i++) {
 		start_pwm_output(i);
 	}
 	
