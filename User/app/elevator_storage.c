@@ -86,12 +86,12 @@ static struct {
 
 #define ELEVATOR_LIMIT_SWITCH_LEFT     5
 #define ELEVATOR_LIMIT_SWITCH_RIGHT    6
-#define CLAW_Y_LIMIT_SWITCH            7
+#define CLAW_X_LIMIT_SWITCH            7
 #define CLAW_Z_LIMIT_SWITCH            8
 void elevator_init() {
 	set_digital_io_dir(ELEVATOR_LIMIT_SWITCH_LEFT, IO_INPUT);
 	set_digital_io_dir(ELEVATOR_LIMIT_SWITCH_RIGHT, IO_INPUT);
-	set_digital_io_dir(CLAW_Y_LIMIT_SWITCH, IO_INPUT);
+	set_digital_io_dir(CLAW_X_LIMIT_SWITCH, IO_INPUT);
 	set_digital_io_dir(CLAW_Z_LIMIT_SWITCH, IO_INPUT);
 	pid_init(&elevator_pids.balance[0], 500, 1000, 3, 0, 0);
 	pid_init(&elevator_pids.balance[1], 500, 1000, 3, 0, 0);
@@ -105,8 +105,8 @@ void elevator_init() {
 	pid_init(&elevator_pids.flywheel_speed[1], 1000, 100, 1, 0, 0);
 	set_pwm_group_param(PWM_GROUP1, 20000);
 	set_pwm_group_param(PWM_GROUP2, 20000);
-	claw_horizontal_set(0);
-	claw_vertical_set(0);
+	claw_horizontal_set(1);
+	claw_vertical_set(1);
 	for (uint8_t i=1; i<=6; i++) {
 		start_pwm_output(i);
 	}
@@ -137,35 +137,72 @@ void elevator_init() {
 	elevator_target_coordinates.x = 0;
 	elevator_target_coordinates.y = 0;
 }
-float theTest;
+
 void elevator_update() {
 	float current_elevator_pos = (float)(motor_elevator[0].total_angle - motor_elevator[1].total_angle) / 2.0f;
 	int16_t elevator_speed[2];
 	int16_t claw_speed[2];
 	int16_t flywheel_power[2];
 	
-	elevator_speed[0] = pid_calc(&elevator_pids.balance[0], motor_elevator[0].total_angle, current_elevator_pos) \
-		+ pid_calc(&elevator_pids.elevator_pos[0], motor_elevator[0].total_angle, elevator_target_coordinates.y);
-	elevator_speed[1] = -pid_calc(&elevator_pids.balance[1], -motor_elevator[1].total_angle, current_elevator_pos) \
-		- pid_calc(&elevator_pids.elevator_pos[1], -motor_elevator[1].total_angle, elevator_target_coordinates.y);
+	elevator_speed[0] = -pid_calc(&elevator_pids.balance[0], -motor_elevator[0].total_angle, current_elevator_pos) \
+		- pid_calc(&elevator_pids.elevator_pos[0], -motor_elevator[0].total_angle, elevator_target_coordinates.y);
+	elevator_speed[1] = pid_calc(&elevator_pids.balance[1], motor_elevator[1].total_angle, current_elevator_pos) \
+		+ pid_calc(&elevator_pids.elevator_pos[1], motor_elevator[1].total_angle, elevator_target_coordinates.y);
 	
 	for(uint8_t i=0; i<2; i++) {
 		elevator_speed[i] = pid_calc(&elevator_pids.elevator_speed[i], motor_elevator[i].speed_rpm, elevator_speed[i]);
 	}
+	if ((-motor_elevator[0].total_angle > 10000 && elevator_speed[0] > 0) || \
+		(-motor_elevator[0].total_angle < 0 && elevator_speed[0] < 0))
+		elevator_speed[0] = 0;
+	
+	if ((motor_elevator[1].total_angle > 10000 && elevator_speed[1] > 0) || \
+		(motor_elevator[1].total_angle < 0 && elevator_speed[1] < 0))
+		elevator_speed[1] = 0;
+	
 	
 	flywheel_power[0] = pid_calc(&elevator_pids.flywheel_speed[0], motor_flywheel[0].speed_rpm, elevator_target_coordinates.flywheel_speed);
 	flywheel_power[1] = pid_calc(&elevator_pids.flywheel_speed[1], motor_flywheel[1].speed_rpm, -elevator_target_coordinates.flywheel_speed);
-	claw_speed[0] = pid_calc(&elevator_pids.claw_pos[0], motor_claw[0].total_angle, elevator_target_coordinates.x);
+	claw_speed[0] = pid_calc(&elevator_pids.claw_pos[0], motor_claw[0].total_angle, -elevator_target_coordinates.x);
 	claw_speed[1] = pid_calc(&elevator_pids.claw_pos[2], motor_claw[1].total_angle, elevator_target_coordinates.z);
-	/*
-	if ((left_pos < -43138 && left_speed < 0) || (left_pos > 0 && left_speed > 0))
-		left_speed = 0;
+
+
 	
-	if ((right_pos < -43138 && left_speed < 0) || (right_pos > 0 && right_speed > 0))
-		right_speed = 0;
-	*/
+	uint8_t elevator_left_limit, elevator_right_limit, claw_x, claw_z;
+	read_digital_io(ELEVATOR_LIMIT_SWITCH_LEFT, &elevator_left_limit);
+	read_digital_io(ELEVATOR_LIMIT_SWITCH_RIGHT, &elevator_right_limit);
+	read_digital_io(CLAW_X_LIMIT_SWITCH, &claw_x);
+	read_digital_io(CLAW_Z_LIMIT_SWITCH, &claw_z);
+	
+	if (!claw_x)
+		reset_motor_measurement(&motor_claw[0]);
+	if (!claw_z)
+		reset_motor_measurement(&motor_claw[1]);
+	
+	if (!elevator_left_limit)
+		reset_motor_measurement(&motor_elevator[0]);
+	if (!elevator_right_limit)
+		reset_motor_measurement(&motor_elevator[1]);
+	
+	
 	send_elevator_motor_current(elevator_speed, claw_speed);
 	send_flywheel_motor_current(flywheel_power);
+}
+
+static int16_t abs(int16_t value) {
+	return value > 0 ? value : -value;
+}
+static float fabs(float value) {
+	return value > 0 ? value : -value;
+}
+uint8_t elevator_ready() {
+	return \
+	(abs(motor_elevator[0].speed_rpm) < 20) && (fabs(elevator_pids.elevator_pos[0].err[NOW]) < 20) && \
+	(abs(motor_elevator[1].speed_rpm) < 20) && (fabs(elevator_pids.elevator_pos[1].err[NOW]) < 20) && \
+	(fabs(elevator_pids.balance[0].err[NOW] < 20)) && (fabs(elevator_pids.balance[0].err[NOW]) < 20) && \
+	(abs(motor_claw[0].speed_rpm) < 20) && (fabs(elevator_pids.claw_pos[0].err[NOW]) < 20) && \
+	(abs(motor_claw[1].speed_rpm) < 20) && (fabs(elevator_pids.claw_pos[1].err[NOW]) < 20);
+	
 }
 
 const float elevator_position_x[2] = {
@@ -184,13 +221,19 @@ void elevator_move_to_storage_coordinates(coordinate_t * theCoords) {
 	//elevator_target_coordinates.z = AFIXEDVALUE;
 }
 
+void elevator_move_to_coordinates(elevator_target_coordinates_t * theCoords) {
+	elevator_target_coordinates.x = theCoords->x;
+	elevator_target_coordinates.y = theCoords->y;
+	elevator_target_coordinates.z = theCoords->z;
+	elevator_target_coordinates.w = theCoords->w;
+}
+
 void elevator_store_block(block_t theBlock) {
 	coordinate_t * theCoords = block_storage_coordinate_for_block(BLOCK_EMPTY);
 	if (theCoords == NULL) {
 		return;
 	}
 	storage_blocker_swing(theCoords->x == 0 ? STORAGE_BLOCKER_SWING_RIGHT : STORAGE_BLOCKER_SWING_LEFT);
-	
 	elevator_move_to_storage_coordinates(theCoords);
 	
 	
