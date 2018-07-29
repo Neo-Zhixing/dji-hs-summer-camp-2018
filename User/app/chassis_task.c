@@ -116,7 +116,7 @@ void get_chassis_mode(void)
     break;
 
     case RC_DN:
-      //chassis.mode = CHASSIS_AUTONOMOUS;
+      chassis.mode = CHASSIS_RELAX;
     break;
   }
 }

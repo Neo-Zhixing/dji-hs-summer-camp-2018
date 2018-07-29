@@ -2,16 +2,27 @@
 #define __ELEVATOR_STORAGE_H__
 
 #include "sys.h"
+
+#define ELEVATOR_LIMIT_SWITCH_LEFT     5
+#define ELEVATOR_LIMIT_SWITCH_RIGHT    6
+#define CLAW_X_LIMIT_SWITCH            7
+#define CLAW_Z_LIMIT_SWITCH            4
+
 typedef struct {
 	float x, y, z;
-	int8_t w;
+	float	w;
 	float flywheel_speed;
 } elevator_target_coordinates_t;
 extern elevator_target_coordinates_t elevator_target_coordinates;
 void elevator_init(void);
 
-void elevator_update(void);
 
+extern int16_t elevator_power[];
+extern int16_t claw_power[];
+extern int16_t flywheel_power[];
+
+void elevator_update(void);
+void elevator_apply_currents(void);
 
 typedef enum {
 	STORAGE_BLOCKER_SWING_LEFT = 1300,

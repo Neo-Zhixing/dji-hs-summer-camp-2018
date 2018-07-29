@@ -138,6 +138,7 @@ void send_chassis_motor_zero_current(void);
   */
 void send_elevator_motor_current(int16_t elevator_current[], int16_t claw_current[]);
 void send_mill_motor_current(int16_t current[]);
+void send_claw_rotate_motor_current(int16_t current);
 void send_flywheel_motor_current(int16_t current[]);
 
 #endif

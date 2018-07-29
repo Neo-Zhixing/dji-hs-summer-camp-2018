@@ -34,7 +34,7 @@
 
 /* Elevator Motors */
 moto_measure_t motor_elevator[2];
-moto_measure_t motor_claw[2];
+moto_measure_t motor_claw[3];
 /* 底盘电机 */
 moto_measure_t motor_chassis[4];
 moto_measure_t motor_mill[3];
@@ -59,20 +59,20 @@ void can1_recv_callback(uint32_t recv_id, uint8_t data[])
 		&motor_chassis[1],
 		&motor_chassis[2],
 		&motor_chassis[3],
-		&motor_elevator[0],
-		&motor_elevator[1],
 		&motor_claw[0],
 		&motor_claw[1],
+		&motor_elevator[0],
+		&motor_elevator[1],
 	};
 	err_id_e errorIDs[8] = {
 		CHASSIS_M1_OFFLINE,
 		CHASSIS_M2_OFFLINE,
 		CHASSIS_M3_OFFLINE,
 		CHASSIS_M4_OFFLINE,
-		ELEVATOR_OFFLINE,
-		ELEVATOR_OFFLINE,
 		CLAW_OFFLINE,
 		CLAW_OFFLINE,
+		ELEVATOR_OFFLINE,
+		ELEVATOR_OFFLINE,
 	};
 	
 	uint8_t id = (uint8_t)recv_id - 1;
@@ -92,7 +92,7 @@ void can2_recv_callback(uint32_t recv_id, uint8_t data[])
 		&motor_mill[0],
 		&motor_mill[1],
 		&motor_mill[2],
-		NULL,
+		&motor_claw[2],
 		&motor_flywheel[0],
 		&motor_flywheel[1],
 	};
@@ -195,17 +195,22 @@ void send_elevator_motor_current(int16_t elevator_current[], int16_t claw_curren
 {
   static uint8_t data[8];
   
-  data[0] = elevator_current[0]>> 8;
-  data[1] = elevator_current[0];
-  data[2] = elevator_current[1] >> 8;
-  data[3] = elevator_current[1];
-  data[4] = claw_current[0] >> 8;
-  data[5] = claw_current[0];
-  data[6] = claw_current[1] >> 8;
-  data[7] = claw_current[1];
+	data[0] = claw_current[0] >> 8;
+  data[1] = claw_current[0];
+  data[2] = claw_current[1] >> 8;
+  data[3] = claw_current[1];
+	
+  data[4] = elevator_current[0]>> 8;
+  data[5] = elevator_current[0];
+  data[6] = elevator_current[1] >> 8;
+  data[7] = elevator_current[1];
+
   
   write_can(USER_CAN1, CAN_ELEVATOR_ID, data);
 }
+
+static int16_t mill_currents[3] = {0, 0, 0};
+static int16_t claw_rotate_current = 0;
 
 void send_mill_motor_current(int16_t current[])
 {
@@ -213,9 +218,10 @@ void send_mill_motor_current(int16_t current[])
 	for (uint8_t i=0; i<3; i++) {
 		data[2*i] = current[i] >> 8;
 		data[2*i + 1] = current[i];
+		mill_currents[i] = current[i];
 	}
-	data[6] = 0;
-	data[7] = 0;
+	data[6] = claw_rotate_current >> 8;
+	data[7] = claw_rotate_current;
   
   write_can(USER_CAN2, CAN_MILL_ID, data);
 }
@@ -228,4 +234,18 @@ void send_flywheel_motor_current(int16_t current[])
 		data[i*2+1] = current[i];
 	}
   write_can(USER_CAN2, CAN_FLYWHEEL_ID, data);
+}
+
+void send_claw_rotate_motor_current(int16_t current)
+{
+	claw_rotate_current = current;
+  static uint8_t data[8];
+	for (uint8_t i=0; i<3; i++) {
+		data[2*i] = mill_currents[i] >> 8;
+		data[2*i + 1] = mill_currents[i];
+	}
+	data[6] = current >> 8;
+	data[7] = current;
+  
+  write_can(USER_CAN2, CAN_MILL_ID, data);
 }
