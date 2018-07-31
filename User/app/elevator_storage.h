@@ -8,6 +8,11 @@
 #define CLAW_X_LIMIT_SWITCH            7
 #define CLAW_Z_LIMIT_SWITCH            4
 
+
+typedef struct {
+	uint8_t x, y;
+} coordinate_t;
+
 typedef struct {
 	float x, y, z;
 	float	w;
@@ -26,8 +31,8 @@ void elevator_apply_currents(void);
 
 typedef enum {
 	STORAGE_BLOCKER_SWING_LEFT = 1300,
-	STORAGE_BLOCKER_SWING_RIGHT = 1600,
-	STORAGE_BLOCKER_SWING_MID = 1450,
+	STORAGE_BLOCKER_SWING_RIGHT = 1700,
+	STORAGE_BLOCKER_SWING_MID = 1500,
 	STORAGE_BLOCKER_SWING_OPEN_LEFT = 950,
 	STORAGE_BLOCKER_SWING_OPEN_RIGHT = 1950,
 } storage_blocker_swing_state;
@@ -35,5 +40,6 @@ void storage_blocker_swing(storage_blocker_swing_state state);
 
 void claw_horizontal_set(uint8_t closed);
 void claw_vertical_set(uint8_t closed);
+void elevator_move_to_storage_coordinates(coordinate_t * theCoords);
 
 #endif
